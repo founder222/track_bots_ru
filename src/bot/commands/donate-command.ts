@@ -31,7 +31,7 @@ export class DonateCommand {
       const isValidNumber = !isNaN(Number(text)) && text?.trim() !== ''
 
       if (!isValidNumber) {
-        this.bot.sendMessage(msg.chat.id, 'Please enter a valid amount', {
+        this.bot.sendMessage(msg.chat.id, 'Введите корректную сумму', {
           reply_markup: SUB_MENU,
           parse_mode: 'HTML',
         })
