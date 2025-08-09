@@ -146,7 +146,7 @@ export class CallbackQueryHandler {
           })
           break
         default:
-          responseText = 'Unknown command.'
+          responseText = 'Неизвестная команда.'
       }
 
       // this.bot.sendMessage(chatId, responseText);
