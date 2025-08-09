@@ -9,6 +9,11 @@ const APP_URL = process.env.APP_URL
 
 const WEBHOOK_URL = `https://api.telegram.org/bot${BOT_TOKEN}/setWebhook?url=${APP_URL}`
 
+// Export createBot function for use in main.ts
+export function createBot(token: string): TelegramBot {
+  return new TelegramBot(token)
+}
+
 // uncomment this line for local development and comment webhook setup
 // export const bot = new TelegramBot(BOT_TOKEN ?? '', { polling: true })
 
