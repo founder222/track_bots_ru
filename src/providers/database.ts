@@ -1,4 +1,8 @@
 import { PrismaClient } from '@prisma/client'
+import dotenv from 'dotenv'
+
+// Load environment variables
+dotenv.config()
 
 // Singleton pattern для Prisma Client с оптимизированным connection pooling
 class DatabaseProvider {
@@ -11,7 +15,7 @@ class DatabaseProvider {
         log: ['error'],
         datasources: {
           db: {
-            url: process.env.DATABASE_URL,
+            url: process.env.NEON_DATABASE_URL,
           },
         },
         // Оптимизированный connection pool
