@@ -125,32 +125,40 @@ export class AddCommand {
           }
 
           if (walletAddress && !base58Regex.test(walletAddress)) {
-            return this.bot.sendMessage(message.chat.id, WalletMessages.walletAddressFormatError)
+            return this.bot.sendMessage(message.chat.id, 'Address provided is not a valid Solana wallet')
           }
 
           if (!walletAddress || !walletName) {
-            return this.bot.sendMessage(message.chat.id, WalletMessages.walletAddressFormatError)
+            return this.bot.sendMessage(message.chat.id, 'Please provide a wallet address and a name')
           }
 
           try {
             new PublicKey(walletAddress)
           } catch (error) {
-            return this.bot.sendMessage(message.chat.id, WalletMessages.walletAddressFormatError)
+            return this.bot.sendMessage(message.chat.id, 'Address provided is not a valid Solana wallet')
           }
 
-          const createResponse = await this.prismaWalletRepository.createWallet(userId, walletAddress, walletName)
+          const createResponse = await this.prismaWalletRepository.create(userId, walletAddress, walletName)
 
           if (!createResponse) {
-            return this.bot.sendMessage(message.chat.id, 'Faild to create wallet')
+            return this.bot.sendMessage(message.chat.id, 'Failed to create wallet')
           }
 
-          this.bot.sendMessage(message.chat.id, WalletMessages.walletAddedMessage(walletName, walletAddress), {
-            parse_mode: 'HTML',
-            reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : SUB_MENU,
-          })
+          this.bot.sendMessage(
+            message.chat.id,
+            `Wallet ${walletAddress} has been added as "${walletName}"`,
+            {
+              parse_mode: 'HTML',
+              reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : SUB_MENU,
+            },
+          )
           this.bot.removeListener('message', listener)
 
-          this.trackWallets.setupWalletWatcher({ event: 'create', walletId: createResponse.walletId })
+          // If repository returns link or new wallet, adapt to both
+          const walletId = (createResponse as any).walletId || (createResponse as any).id
+          if (walletId) {
+            this.trackWallets.setupWalletWatcher({ event: 'create', walletId })
+          }
         }
       }
 
