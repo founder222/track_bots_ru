@@ -1,5 +1,4 @@
 import { PrismaClient } from '@prisma/client'
-import { bot } from '../src/providers/telegram'
 import { MAX_WHALE_WALLETS } from '../src/constants/pricing'
 import chalk from 'chalk'
 
