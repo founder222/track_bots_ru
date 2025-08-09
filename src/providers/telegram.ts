@@ -3,28 +3,14 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-const BOT_TOKEN = process.argv[2];  // Токен передается как аргумент командной строки
-const TEST_BOT_TOKEN = process.env.TEST_BOT_TOKEN
-const APP_URL = process.env.APP_URL
-
-const WEBHOOK_URL = `https://api.telegram.org/bot${BOT_TOKEN}/setWebhook?url=${APP_URL}`
-
 // Export createBot function for use in main.ts
 export function createBot(token: string): TelegramBot {
   return new TelegramBot(token)
 }
 
-// uncomment this line for local development and comment webhook setup
-// export const bot = new TelegramBot(BOT_TOKEN ?? '', { polling: true })
+// Optional exports for backwards compatibility
+const TEST_BOT_TOKEN = process.env.TEST_BOT_TOKEN
+const APP_URL = process.env.APP_URL
 
-// webhook -- comment everything below this line to disable webhook setup
-export const bot = new TelegramBot(BOT_TOKEN ?? '')
-
-bot
-  .setWebHook(WEBHOOK_URL)
-  .then(() => {
-    console.log(`Webhook set to ${WEBHOOK_URL}`)
-  })
-  .catch((error) => {
-    console.error('Error setting webhook:', error)
-  })
+// Only export bot if needed for development/testing
+// export const bot = new TelegramBot(process.env.BOT_TOKENS?.split(',')[0] ?? '', { polling: true })
