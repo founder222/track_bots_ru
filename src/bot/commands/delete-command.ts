@@ -13,7 +13,7 @@ export class DeleteCommand {
   constructor(private bot: TelegramBot) {
     this.bot = bot
     this.prismaWalletRepository = new PrismaWalletRepository()
-    this.trackWallets = new TrackWallets()
+    this.trackWallets = new TrackWallets(this.bot)
   }
 
   public deleteCommandHandler() {
@@ -78,14 +78,14 @@ export class DeleteCommand {
         const isValid = base58Regex.test(walletAddress) && PublicKey.isOnCurve(new PublicKey(walletAddress).toBytes())
 
         if (!isValid) {
-          this.bot.sendMessage(message.chat.id, `Адрес ${walletAddress} не является валидным кошельком Solana`)
+          this.bot.sendMessage(message.chat.id, `Address ${walletAddress} is not a valid Solana wallet`)
           continue
         }
 
         const deletedAddress = await this.prismaWalletRepository.deleteWallet(userId, walletAddress)
 
         if (!deletedAddress?.walletId) {
-          this.bot.sendMessage(message.chat.id, `Вы не отслеживаете кошелек: ${walletAddress}`)
+          this.bot.sendMessage(message.chat.id, `You're not tracking the wallet: ${walletAddress}`)
           continue
         }
 
@@ -95,7 +95,7 @@ export class DeleteCommand {
       if (deletedCount > 0) {
         this.bot.sendMessage(
           message.chat.id,
-          `🐱 ${deletedCount} ${deletedCount < 2 ? `кошелек успешно удален!` : `кошельков успешно удалено!`} уведомления по ${deletedCount < 2 ? `этому кошельку` : `этим кошелькам`} больше приходить не будут`,
+          `🐱 ${deletedCount} ${deletedCount < 2 ? `wallet has been succesfully deleted!` : `wallets have succesfully been deleted!`} you will no longer get notifications for these ${deletedCount < 2 ? `wallet` : `wallets`}`,
           { reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : SUB_MENU },
         )
       }
