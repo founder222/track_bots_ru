@@ -1,11 +1,16 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { PrismaUserRepository } from '../repositories/prisma/user'
-import { bot } from '../providers/telegram'
 import { SubscriptionMessages } from '../bot/messages/subscription-messages'
 import { PrismaGroupRepository } from '../repositories/prisma/group'
 import { GeneralMessages } from '../bot/messages/general-messages'
 
 export class BotMiddleware {
+  private static bot: TelegramBot
+
+  static init(bot: TelegramBot) {
+    this.bot = bot
+  }
+
   static isGroup(chatId: number): boolean {
     return chatId < 0
   }
@@ -23,9 +28,12 @@ export class BotMiddleware {
   static async isUserAdmin(chatId: number, userId: string): Promise<boolean> {
     try {
       // Get the list of administrators for the group chat
-      const admins = await bot.getChatAdministrators(chatId)
+      const admins = await this.bot.getChatAdministrators(chatId)
 
-      const isAdmin = admins.some((admin) => admin.user.id.toString() === userId)
+      const isAdmin = admins.some(
+        (admin: TelegramBot.ChatMemberAdministrator | TelegramBot.ChatMemberOwner | TelegramBot.ChatMember) =>
+          (admin as any).user.id.toString() === userId
+      )
 
       return isAdmin
     } catch (error) {
