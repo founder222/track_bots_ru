@@ -8,18 +8,18 @@ export class WalletMessages {
   }
 
   static addWalletMessage: string = `
-🐱 Ok, just send me a wallet address to track:
+🐱 Ок, просто отправьте адрес кошелька для отслеживания:
 
-You can also give that wallet a name by following the address with the desired name, or add multiple wallets at once by sending them each on a new line for example: 
+Также вы можете дать кошельку имя, указав его после адреса, или добавить несколько кошельков сразу, отправив каждый на новой строке, например:
 
 walletAddress1 walletName1
 walletAddress2 walletName2
 `
 
   static deleteWalletMessage: string = `
-Send me the wallet address you want to remove 🗑️
+Отправьте адрес кошелька, который хотите удалить 🗑️
 
-You can also delete multiple wallets at once if you send them each on a new line, for example:
+Вы также можете удалить несколько кошельков сразу, если отправите каждый на новой строке, например:
 
 walletAddress1
 walletAddress2
@@ -31,7 +31,7 @@ walletAddress2
     const solBalance = await this.userBalances.userPersonalSolBalance(wallet.personalWalletPubKey)
 
     const responseText = `
-<b>Your wallet address:</b> 
+<b>Адрес вашего кошелька:</b>
 <code>${wallet && wallet.personalWalletPubKey}</code>
 
 <b>SOL:</b> ${solBalance ? solBalance / 1e9 : 0}
