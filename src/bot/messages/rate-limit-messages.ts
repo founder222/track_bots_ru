@@ -3,7 +3,7 @@ export class RateLimitMessages {
 
   static walletWasPaused(walletAddress: string): string {
     const messageText = `
-Your wallet <code>${walletAddress}</code> is spamming to many txs per second and it will be paused for 2 hours
+Ваш кошелек <code>${walletAddress}</code> отправляет слишком много транзакций в секунду, он будет приостановлен на 2 часа
 `
 
     return messageText
@@ -11,7 +11,7 @@ Your wallet <code>${walletAddress}</code> is spamming to many txs per second and
 
   static walletWasResumed(walletAddress: string): string {
     const messageText = `
-Your wallet <code>${walletAddress}</code> has been resumed from sleeping after 2 hours!
+Ваш кошелек <code>${walletAddress}</code> был возобновлён после 2 часов паузы!
         `
 
     return messageText
@@ -19,7 +19,7 @@ Your wallet <code>${walletAddress}</code> has been resumed from sleeping after 2
 
   static walletWasBanned(walletAddress: string): string {
     const messageText = `
-Your wallet <code>${walletAddress}</code> was banned and no longer being tracked due to hard spamming txs
+Ваш кошелек <code>${walletAddress}</code> был заблокирован и больше не отслеживается из-за частого спама транзакциями
 `
 
     return messageText
