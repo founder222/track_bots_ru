@@ -1,5 +1,5 @@
 import { DatabaseProvider } from '../../providers/database'
-import { User, Plan } from '@prisma/client'
+import { User, SubscriptionPlan } from '@prisma/client'
 
 interface CacheEntry<T> {
   data: T
@@ -59,14 +59,26 @@ class OptimizedUserRepository {
     }
   }
 
-  public async getById(userId: string): Promise<User | null> {
+  public async getById(userId: string): Promise<any> {
     const cacheKey = `user:${userId}`
-    const cached = this.getCachedData<User>(cacheKey)
+    const cached = this.getCachedData<any>(cacheKey)
     if (cached) return cached
 
     try {
       const user = await this.prisma.user.findUnique({
-        where: { userId }
+        where: { id: userId },
+        include: {
+          userSubscription: {
+            select: {
+              plan: true
+            }
+          },
+          _count: {
+            select: {
+              userWallets: true
+            }
+          }
+        }
       })
 
       if (user) {
@@ -80,15 +92,16 @@ class OptimizedUserRepository {
     }
   }
 
-  public async createUser(userId: string, chatId: number): Promise<User | null> {
+  public async createUser(userId: string, username: string, firstName: string, lastName: string, personalWalletPubKey: string, personalWalletPrivKey: string): Promise<User | null> {
     try {
       const user = await this.prisma.user.create({
         data: {
-          userId,
-          chatId,
-          plan: 'FREE' as Plan,
-          notifications: true,
-          subscriptionEnd: null
+          id: userId,
+          username,
+          firstName,
+          lastName,
+          personalWalletPubKey,
+          personalWalletPrivKey
         }
       })
 
@@ -102,13 +115,18 @@ class OptimizedUserRepository {
     }
   }
 
-  public async updateUserPlan(userId: string, plan: Plan, subscriptionEnd?: Date): Promise<boolean> {
+  public async updateUserPlan(userId: string, plan: SubscriptionPlan, subscriptionEnd?: Date): Promise<boolean> {
     try {
-      await this.prisma.user.update({
+      await this.prisma.userSubscription.upsert({
         where: { userId },
-        data: {
+        update: {
           plan,
-          subscriptionEnd
+          subscriptionCurrentPeriodEnd: subscriptionEnd
+        },
+        create: {
+          userId,
+          plan,
+          subscriptionCurrentPeriodEnd: subscriptionEnd
         }
       })
 
@@ -130,12 +148,17 @@ class OptimizedUserRepository {
     try {
       const users = await this.prisma.user.findMany({
         where: {
-          subscriptionEnd: {
-            lte: new Date()
-          },
-          plan: {
-            not: 'FREE'
+          userSubscription: {
+            subscriptionCurrentPeriodEnd: {
+              lte: new Date()
+            },
+            plan: {
+              not: 'FREE'
+            }
           }
+        },
+        include: {
+          userSubscription: true
         }
       })
 
