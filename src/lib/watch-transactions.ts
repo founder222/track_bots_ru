@@ -17,6 +17,7 @@ import { NativeParserInterface } from '../types/general-interfaces'
 import pLimit from 'p-limit'
 import { CronJobs } from './cron-jobs'
 import { PrismaUserRepository } from '../repositories/prisma/user'
+import { bot } from '../providers/telegram'
 
 export const trackedWallets: Set<string> = new Set()
 
@@ -85,6 +86,11 @@ export class WatchTransaction extends EventEmitter {
             // check txs per second
             const walletData = this.walletTransactions.get(walletAddress)
             if (!walletData) {
+              return
+            }
+
+            if (!bot) {
+              console.error('Bot is not initialized')
               return
             }
 
@@ -166,6 +172,11 @@ export class WatchTransaction extends EventEmitter {
   }
 
   private async sendMessagesToUsers(wallet: WalletWithUsers, parsed: NativeParserInterface) {
+    if (!bot) {
+      console.error('Bot is not initialized')
+      return
+    }
+
     const sendMessageHandler = new SendTransactionMsgHandler(bot)
 
     const pausedUsers = (await this.prismaUserRepository.getPausedUsers(wallet.userWallets.map((w) => w.userId))) || []
