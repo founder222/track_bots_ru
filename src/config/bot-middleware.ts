@@ -22,10 +22,15 @@ export class BotMiddleware {
 
   static async isUserAdmin(chatId: number, userId: string): Promise<boolean> {
     try {
+      if (!bot) {
+        console.error('Bot not initialized')
+        return false
+      }
+
       // Get the list of administrators for the group chat
       const admins = await bot.getChatAdministrators(chatId)
 
-      const isAdmin = admins.some((admin) => admin.user.id.toString() === userId)
+      const isAdmin = admins.some((admin: TelegramBot.ChatMember) => admin.user.id.toString() === userId)
 
       return isAdmin
     } catch (error) {
