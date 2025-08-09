@@ -125,7 +125,10 @@ app.post('/webhook/:botId', async (req, res) => {
   const { botId } = req.params
   const item = botsRegistry.get(botId)
 
+  console.log(`[webhook] Received update for bot ${botId}:`, JSON.stringify(req.body, null, 2))
+
   if (!item) {
+    console.error(`[webhook] Unknown bot id: ${botId}`)
     return res.status(404).send('Unknown bot id')
   }
 
@@ -136,6 +139,7 @@ app.post('/webhook/:botId', async (req, res) => {
   try {
     await Promise.race([
       new Promise<void>((resolve) => {
+        console.log(`[webhook] Processing update for bot ${botId}`)
         item.bot.processUpdate(req.body)
         resolve()
       }),
@@ -143,6 +147,7 @@ app.post('/webhook/:botId', async (req, res) => {
         setTimeout(() => reject(new Error('Webhook processing timeout')), 8000)
       )
     ])
+    console.log(`[webhook] Successfully processed update for bot ${botId}`)
   } catch (err) {
     console.error(`[bot ${botId}] failed to process update:`, err)
     // НЕ возвращаем 500, так как уже ответили Telegram
