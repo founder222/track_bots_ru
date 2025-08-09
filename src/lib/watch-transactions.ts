@@ -3,7 +3,6 @@ import { ValidTransactions } from './valid-transactions'
 import EventEmitter from 'events'
 import { TransactionParser } from '../parsers/transaction-parser'
 import { SendTransactionMsgHandler } from '../bot/handlers/send-tx-msg-handler'
-import { bot } from '../providers/telegram'
 import { SwapType, WalletWithUsers } from '../types/swap-types'
 import { RateLimit } from './rate-limit'
 import {
@@ -18,6 +17,7 @@ import { NativeParserInterface } from '../types/general-interfaces'
 import pLimit from 'p-limit'
 import { CronJobs } from './cron-jobs'
 import { PrismaUserRepository } from '../repositories/prisma/user'
+import TelegramBot from 'node-telegram-bot-api'
 
 export const trackedWallets: Set<string> = new Set()
 
@@ -30,8 +30,12 @@ export class WatchTransaction extends EventEmitter {
   private rateLimit: RateLimit
 
   private prismaUserRepository: PrismaUserRepository
-  constructor() {
+  private bot: TelegramBot
+
+  constructor(bot: TelegramBot) {
     super()
+
+    this.bot = bot
 
     this.subscriptions = new Map()
     this.walletTransactions = new Map()
@@ -91,7 +95,7 @@ export class WatchTransaction extends EventEmitter {
 
             const isWalletRateLimited = await this.rateLimit.txPerSecondCap({
               wallet,
-              bot,
+              bot: this.bot,
               excludedWallets: this.excludedWallets,
               walletData,
             })
@@ -167,7 +171,7 @@ export class WatchTransaction extends EventEmitter {
   }
 
   private async sendMessagesToUsers(wallet: WalletWithUsers, parsed: NativeParserInterface) {
-    const sendMessageHandler = new SendTransactionMsgHandler(bot)
+    const sendMessageHandler = new SendTransactionMsgHandler(this.bot)
 
     const pausedUsers = (await this.prismaUserRepository.getPausedUsers(wallet.userWallets.map((w) => w.userId))) || []
 
