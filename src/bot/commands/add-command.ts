@@ -23,7 +23,7 @@ export class AddCommand {
 
     this.prismaWalletRepository = new PrismaWalletRepository()
 
-    this.trackWallets = new TrackWallets()
+    this.trackWallets = new TrackWallets(this.bot)
     this.userPlan = new UserPlan()
   }
 
@@ -85,7 +85,7 @@ export class AddCommand {
           .filter(Boolean) // Split input by new lines, trim, and remove empty lines
 
         if (!walletEntries || walletEntries.length === 0) {
-          this.bot.sendMessage(message.chat.id, 'Адреса кошельков не указаны.')
+          this.bot.sendMessage(message.chat.id, 'No wallet addresses provided.')
           return
         }
 
@@ -118,70 +118,48 @@ export class AddCommand {
               message.chat.id,
               GeneralMessages.walletLimitMessageError(walletName, walletAddress, planWallets),
               {
+                reply_markup: UPGRADE_PLAN_SUB_MENU,
                 parse_mode: 'HTML',
-                reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : UPGRADE_PLAN_SUB_MENU,
               },
             )
           }
 
-          // Validate the wallet before pushing to the database
-          if (!base58Regex.test(walletAddress)) {
-            this.bot.sendMessage(message.chat.id, `😾 Указан неверный адрес кошелька Solana`)
-            continue
+          if (walletAddress && !base58Regex.test(walletAddress)) {
+            return this.bot.sendMessage(message.chat.id, WalletMessages.walletAddressFormatError)
           }
 
-          const publicKeyWallet = new PublicKey(walletAddress)
-          if (!PublicKey.isOnCurve(publicKeyWallet.toBytes())) {
-            this.bot.sendMessage(message.chat.id, `😾 Указан неверный адрес кошелька Solana`)
-            continue
+          if (!walletAddress || !walletName) {
+            return this.bot.sendMessage(message.chat.id, WalletMessages.walletAddressFormatError)
           }
 
-          // const isValid =
-          //   base58Regex.test(walletAddress as string) &&
-          //   PublicKey.isOnCurve(new PublicKey(walletAddress as string).toBytes())
-
-          // if (!isValid) {
-          //   this.bot.sendMessage(message.chat.id, `😾 Address provided is not a valid Solana wallet`)
-          //   continue
-          // }
-
-          // const latestWalletTxs = await this.rateLimit.last5MinutesTxs(walletAddress)
-
-          // if (latestWalletTxs && latestWalletTxs >= MAX_5_MIN_TXS_ALLOWED) {
-          //   this.bot.sendMessage(
-          //     message.chat.id,
-          //     `😾 Wallet ${walletAddress} is spamming too many transactions, try another wallet or try again later`,
-          //   )
-          //   continue
-          // }
-
-          const isWalletAlready = await this.prismaWalletRepository.getUserWalletById(userId, walletAddress)
-
-          if (isWalletAlready) {
-            this.bot.sendMessage(message.chat.id, `🙀 Вы уже отслеживаете кошелек: ${walletAddress}`)
-            continue
+          try {
+            new PublicKey(walletAddress)
+          } catch (error) {
+            return this.bot.sendMessage(message.chat.id, WalletMessages.walletAddressFormatError)
           }
 
-          // Add wallet to the database
-          await this.prismaWalletRepository.create(userId!, walletAddress!, walletName)
+          const createResponse = await this.prismaWalletRepository.createWallet(userId, walletAddress, walletName)
 
-          this.bot.sendMessage(message.chat.id, `🎉 Кошелек ${walletAddress} добавлен.`)
+          if (!createResponse) {
+            return this.bot.sendMessage(message.chat.id, 'Faild to create wallet')
+          }
+
+          this.bot.sendMessage(message.chat.id, WalletMessages.walletAddedMessage(walletName, walletAddress), {
+            parse_mode: 'HTML',
+            reply_markup: BotMiddleware.isGroup(message.chat.id) ? undefined : SUB_MENU,
+          })
+          this.bot.removeListener('message', listener)
+
+          this.trackWallets.setupWalletWatcher({ event: 'create', walletId: createResponse.walletId })
         }
-
-        // Remove the listener to avoid duplicate handling
-        this.bot.removeListener('message', listener)
-
-        // Reset the flag
-        userExpectingWalletAddress[Number(userId)] = false
       }
 
-      this.bot.once('message', listener)
+      // Ensure previous listener is removed
+      this.bot.removeListener('message', listener)
+      this.bot.addListener('message', listener)
     } catch (error) {
-      this.bot.sendMessage(
-        message.chat.id,
-        `😾 Что-то пошло не так при добавлении кошелька! Попробуйте другой адрес`,
-      )
-      return
+      console.log('error in add', error)
+      this.bot.sendMessage(message.chat.id, 'Something went wrong, please try again later.')
     }
   }
 }
