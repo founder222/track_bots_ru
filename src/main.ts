@@ -154,9 +154,23 @@ app.post('/webhook/:botId', async (req, res) => {
   }
 })
 
-// Optional Home
+// Health check endpoints
 app.get('/', (_req, res) => {
-  res.send('OK')
+  res.json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    bots: botsRegistry.size,
+    uptime: process.uptime()
+  })
+})
+
+app.get('/health', (_req, res) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    bots: botsRegistry.size,
+    uptime: process.uptime()
+  })
 })
 
 async function initOnceServices() {
@@ -174,31 +188,55 @@ async function initOnceServices() {
 
 async function bootstrap() {
   try {
+    console.log('🚀 Starting application bootstrap...')
+    console.log(`Environment: ${process.env.NODE_ENV}`)
+    console.log(`Port: ${PORT}`)
+    console.log(`App URL Base: ${APP_URL_BASE}`)
+    console.log(`Bot tokens count: ${BOT_TOKENS.length}`)
+
     // Сначала подключаемся к БД
+    console.log('📋 Connecting to database...')
     await DatabaseProvider.connect()
+    console.log('✅ Database connected successfully')
 
     // Затем инициализируем ботов
+    console.log('🤖 Initializing bots...')
     await initBots()
+    console.log(`✅ Initialized ${botsRegistry.size} bot(s)`)
 
     // И запускаем сервисы
+    console.log('⚙️ Starting services...')
     await initOnceServices()
+    console.log('✅ Services started')
 
     const server = app.listen(PORT, () => {
-      console.log(`Server listening on :${PORT}`)
-      console.log(`Registered ${botsRegistry.size} bot(s)`)
+      console.log(`🌐 Server listening on :${PORT}`)
+      console.log(`📊 Registered ${botsRegistry.size} bot(s)`)
+      console.log('✅ Application fully started!')
     })
 
     // Graceful shutdown
     process.on('SIGTERM', async () => {
-      console.log('SIGTERM received, shutting down gracefully...')
+      console.log('⚠️ SIGTERM received, shutting down gracefully...')
       server.close(() => {
         DatabaseProvider.disconnect()
         process.exit(0)
       })
     })
 
+    // Handle uncaught exceptions
+    process.on('uncaughtException', (error) => {
+      console.error('💥 Uncaught Exception:', error)
+      process.exit(1)
+    })
+
+    process.on('unhandledRejection', (reason, promise) => {
+      console.error('💥 Unhandled Rejection at:', promise, 'reason:', reason)
+      process.exit(1)
+    })
+
   } catch (error) {
-    console.error('Failed to bootstrap application:', error)
+    console.error('💥 Failed to bootstrap application:', error)
     process.exit(1)
   }
 }
