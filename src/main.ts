@@ -61,11 +61,21 @@ async function createAndRegisterBot(token: string) {
   const botId = botIdFromToken(token)
   const bot = createBot(token)
 
-  // Register webhook for this bot
-  if (APP_URL_BASE) {
+  // Choose connection method: webhook or polling
+  const USE_POLLING = process.env.USE_POLLING === 'true'
+
+  if (USE_POLLING) {
+    // Use polling for debugging
+    console.log(`[bot ${botId}] starting polling mode`)
+    bot.startPolling({ restart: true })
+    console.log(`[bot ${botId}] polling started`)
+  } else if (APP_URL_BASE) {
+    // Use webhook for production
     const url = `${APP_URL_BASE.replace(/\/$/, '')}/webhook/${botId}`
     await bot.setWebHook(url)
     console.log(`[bot ${botId}] webhook set to ${url}`)
+  } else {
+    console.warn(`[bot ${botId}] no APP_URL_BASE set, bot will not receive updates`)
   }
 
   // Attach answerCallbackQuery early for responsiveness via a thin wrapper in handler
@@ -121,6 +131,27 @@ async function initBots() {
 const app: Express = express()
 app.use(express.json())
 
+// GET endpoint for webhook diagnostics
+app.get('/webhook/:botId', (req, res) => {
+  const { botId } = req.params
+  const item = botsRegistry.get(botId)
+
+  if (!item) {
+    return res.status(404).json({
+      error: 'Unknown bot id',
+      botId,
+      availableBots: Array.from(botsRegistry.keys())
+    })
+  }
+
+  res.json({
+    status: 'Webhook endpoint active',
+    botId,
+    method: 'GET',
+    note: 'POST to this endpoint to send updates'
+  })
+})
+
 app.post('/webhook/:botId', async (req, res) => {
   const { botId } = req.params
   const item = botsRegistry.get(botId)
@@ -171,6 +202,45 @@ app.get('/health', (_req, res) => {
     bots: botsRegistry.size,
     uptime: process.uptime()
   })
+})
+
+// Test endpoint for debugging
+app.get('/test-webhook/:botId', (req, res) => {
+  const { botId } = req.params
+  const item = botsRegistry.get(botId)
+
+  if (!item) {
+    return res.status(404).json({ error: 'Bot not found', botId })
+  }
+
+  // Simulate a /start command for testing
+  const testUpdate = {
+    update_id: 999999,
+    message: {
+      message_id: 1,
+      from: {
+        id: 12345,
+        is_bot: false,
+        first_name: "Test",
+        username: "testuser"
+      },
+      chat: {
+        id: 12345,
+        first_name: "Test",
+        username: "testuser",
+        type: "private"
+      },
+      date: Math.floor(Date.now() / 1000),
+      text: "/start"
+    }
+  }
+
+  try {
+    item.bot.processUpdate(testUpdate)
+    res.json({ success: true, message: 'Test update processed', botId })
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message, botId })
+  }
 })
 
 async function initOnceServices() {
