@@ -14,13 +14,18 @@ export class StartCommand {
 
   public start() {
     this.bot.onText(/\/start/, async (msg) => {
+      console.log('[start-command] Received /start command:', JSON.stringify(msg, null, 2))
+
       const chatId = msg.chat.id
       const firstName = msg.from?.first_name || ''
       const lastName = msg.from?.last_name || ''
       const username = msg.from?.username || ''
       const userId = msg.chat?.id.toString()
 
+      console.log(`[start-command] Processing for user ${userId} (${username}) in chat ${chatId}`)
+
       if (!userId) {
+        console.log('[start-command] No userId found, returning')
         return
       }
 
