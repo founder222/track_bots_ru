@@ -12,5 +12,6 @@ export function createBot(token: string): TelegramBot {
 const TEST_BOT_TOKEN = process.env.TEST_BOT_TOKEN
 const APP_URL = process.env.APP_URL
 
-// Only export bot if needed for development/testing
-// export const bot = new TelegramBot(process.env.BOT_TOKENS?.split(',')[0] ?? '', { polling: true })
+// Export bot for scripts and other legacy usage
+const firstToken = process.env.BOT_TOKENS?.split(',')[0]?.trim()
+export const bot = firstToken ? new TelegramBot(firstToken) : null
