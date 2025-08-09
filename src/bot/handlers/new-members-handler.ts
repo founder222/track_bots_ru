@@ -13,7 +13,7 @@ export class NewMembersHandler {
       msg.new_chat_members?.forEach((newMember) => {
         const firstName = newMember.first_name
 
-        const welcomeMessage = `Welcome, ${firstName}! I am here to assist you. Use /start to see what I can do.`
+        const welcomeMessage = `Добро пожаловать, ${firstName}! Я здесь, чтобы помочь. Используйте /start, чтобы узнать, что я умею.`
 
         const commandMenu = {
           reply_markup: {
