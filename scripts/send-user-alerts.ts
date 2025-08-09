@@ -1,9 +1,15 @@
 import { PrismaClient } from '@prisma/client'
-import { bot } from '../src/providers/telegram'
+import { createBot } from '../src/providers/telegram'
 import { MAX_WHALE_WALLETS } from '../src/constants/pricing'
 import chalk from 'chalk'
 
 const prisma = new PrismaClient()
+
+const BOT_TOKEN = process.env.BOT_TOKEN || (process.env.BOT_TOKENS ? process.env.BOT_TOKENS.split(',')[0].trim() : '')
+if (!BOT_TOKEN) {
+  throw new Error('BOT_TOKEN or BOT_TOKENS env var is required to send alerts')
+}
+const bot = createBot(BOT_TOKEN)
 
 // Function to send messages to users
 const sendMessage = async () => {
