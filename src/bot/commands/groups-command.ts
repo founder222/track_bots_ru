@@ -47,7 +47,7 @@ export class GroupsCommand {
     this.bot.onText(/\/activate/, async (msg) => {
       const chatId = msg.chat.id
       const userId = String(msg.from?.id)
-      const groupName = msg.chat.title || 'No group name'
+      const groupName = msg.chat.title || 'Нет названия группы'
 
       if (!BotMiddleware.isGroup(chatId)) return
 
@@ -95,7 +95,7 @@ export class GroupsCommand {
 
         this.bot.sendMessage(
           chatId,
-          `🐱 Group ${groupName} has been activated! Remember only you can update this bot settings`,
+          `🐱 Группа ${groupName} активирована! Помните, только вы можете менять настройки этого бота`,
         )
 
         return
@@ -104,7 +104,7 @@ export class GroupsCommand {
       this.bot.sendMessage(
         chatId,
         `
-😾 This group has been already activated
+😾 Эта группа уже активирована
 `,
       )
     })
