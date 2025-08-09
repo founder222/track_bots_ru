@@ -17,6 +17,7 @@ import { CronJobs } from './lib/cron-jobs'
 import { TrackWallets } from './lib/track-wallets'
 import { ASCII_TEXT } from './constants/handi-cat'
 import gradient from 'gradient-string'
++import { BotMiddleware } from './config/bot-middleware'
 
 dotenv.config()
 
@@ -147,7 +148,15 @@ async function initOnceServices() {
   console.log(gradientText(ASCII_TEXT))
 
   const cronJobs = new CronJobs()
-  const trackWallets = new TrackWallets()
+-  const trackWallets = new TrackWallets()
++  // Choose primary bot for services: first bot in registry
++  const firstBot = Array.from(botsRegistry.values())[0]?.bot
++  if (!firstBot) {
++    console.warn('No bots registered; skipping services init')
++    return
++  }
++  BotMiddleware.init(firstBot)
++  const trackWallets = new TrackWallets(firstBot)
 
   await cronJobs.monthlySubscriptionFee()
   await cronJobs.updateSolPrice()
