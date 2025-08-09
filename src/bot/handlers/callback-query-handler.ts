@@ -64,6 +64,11 @@ export class CallbackQueryHandler {
       const chatId = message?.chat.id
       const data = callbackQuery.data
 
+      // Immediate feedback to user
+      if (callbackQuery.id) {
+        try { await this.bot.answerCallbackQuery(callbackQuery.id) } catch {}
+      }
+
       const userId = message?.chat.id.toString()
 
       if (!chatId || !userId) {
