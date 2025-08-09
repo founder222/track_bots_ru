@@ -14,9 +14,10 @@ import { SettingsCommand } from '../commands/settings-command'
 import { UpdateBotStatusHandler } from './update-bot-status-handler'
 import { PromotionHandler } from './promotion-handler'
 import { GET_50_WALLETS_PROMOTION } from '../../constants/promotions'
-import { PrismaUserRepository } from '../../repositories/prisma/user'
+import { OptimizedUserRepository } from '../../repositories/optimized/user'
 import { GroupsCommand } from '../commands/groups-command'
 import { HelpCommand } from '../commands/help-command'
+import { rateLimiter } from '../../lib/enhanced-rate-limit'
 
 export class CallbackQueryHandler {
   private addCommand: AddCommand
@@ -31,7 +32,7 @@ export class CallbackQueryHandler {
 
   private updateBotStatusHandler: UpdateBotStatusHandler
 
-  private prismaUserRepository: PrismaUserRepository
+  private userRepository: OptimizedUserRepository
 
   private upgradePlanHandler: UpgradePlanHandler
   private donateHandler: DonateHandler
@@ -51,7 +52,7 @@ export class CallbackQueryHandler {
 
     this.updateBotStatusHandler = new UpdateBotStatusHandler(this.bot)
 
-    this.prismaUserRepository = new PrismaUserRepository()
+    this.userRepository = OptimizedUserRepository.getInstance()
 
     this.upgradePlanHandler = new UpgradePlanHandler(this.bot)
     this.donateHandler = new DonateHandler(this.bot)
@@ -64,9 +65,46 @@ export class CallbackQueryHandler {
       const chatId = message?.chat.id
       const data = callbackQuery.data
 
+      // Immediate feedback to user - CRITICAL FIX
+      if (callbackQuery.id) {
+        // Не блокируем выполнение, отвечаем сразу
+        this.bot.answerCallbackQuery(callbackQuery.id).catch(err => {
+          console.error('Failed to answer callback query:', err)
+        })
+      }
+
       const userId = message?.chat.id.toString()
 
       if (!chatId || !userId) {
+        return
+      }
+
+      // Добавляем общий timeout и обработку ошибок
+      try {
+        await Promise.race([
+          this.processCallbackQuery(data, message, userId, chatId),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Callback query timeout')), 10000)
+          )
+        ])
+      } catch (error) {
+        console.error(`Error processing callback query for user ${userId}:`, error)
+        // Уведомляем пользователя о проблеме
+        this.bot.sendMessage(chatId, '⚠️ Произошла ошибка при обработке команды. Попробуйте еще раз.')
+          .catch(err => console.error('Failed to send error message:', err))
+      }
+    })
+  }
+
+  private async processCallbackQuery(data: string | undefined, message: TelegramBot.Message, userId: string, chatId: number) {
+      // Проверяем rate limit
+      if (!rateLimiter.isAllowed(userId, 'callback_query')) {
+        const resetTime = rateLimiter.getResetTime(userId, 'callback_query')
+        const waitMinutes = Math.ceil((resetTime - Date.now()) / 60000)
+
+        await this.bot.sendMessage(chatId,
+          `⚠️ Слишком много запросов. Подождите ${waitMinutes} мин.`
+        ).catch(() => {}) // Игнорируем ошибки отправки
         return
       }
 
@@ -130,7 +168,7 @@ export class CallbackQueryHandler {
           this.promotionHandler.buyPromotion(message, GET_50_WALLETS_PROMOTION.price, GET_50_WALLETS_PROMOTION.type)
           break
         case 'back_to_main_menu':
-          const user = await this.prismaUserRepository.getById(userId)
+          const user = await this.userRepository.getById(userId)
           const messageText = GeneralMessages.startMessage(user)
 
           // reset any flags
@@ -146,10 +184,7 @@ export class CallbackQueryHandler {
           })
           break
         default:
-          responseText = 'Unknown command.'
+          responseText = 'Неизвестная команда.'
       }
-
-      // this.bot.sendMessage(chatId, responseText);
-    })
   }
 }
