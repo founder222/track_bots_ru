@@ -24,37 +24,37 @@ export class GeneralMessages {
     }
 
     const promText = `
-🎉 <b>LIMITED-TIME OFFER (24hrs)</b>🎉
-For a <b>One-Time</b> payment of only <b>0.1 SOL</b>, track up to <b>**50 wallets LIFETIME**</b>
+🎉 <b>ПРЕДЛОЖЕНИЕ НА ОГРАНИЧЕННОЕ ВРЕМЯ (24ч)</b>🎉
+За <b>одноразовый</b> платеж всего <b>0.1 SOL</b> отслеживайте до <b>**50 кошельков ПОЖИЗНЕННО**</b>
 
-Don’t miss out on this exclusive deal to supercharge your wallet tracking without any monthly subscriptions!
+Не упустите шанс прокачать отслеживание кошельков без ежемесячных подписок!
 `
     const messageText = `
-Bot | Wallet Tracker
+Bot | Отслеживание кошельков
 
-Get real time activity notifications for any wallet you add!
+Получайте уведомления в реальном времени по любому кошельку, который вы добавите!
 
-You are currently tracking ${user?._count.userWallets || 0} / ${planWallets[plan]} wallets wallets 
+Сейчас вы отслеживаете ${user?._count.userWallets || 0} / ${planWallets[plan]} кошельков
 
-Click the Upgrade button to unlock more wallet slots and retain your tracked wallets! 
+Нажмите кнопку Обновить план, чтобы открыть больше слотов и сохранить отслеживаемые кошельки!
 
-Note for Free Users: 
-To ensure smooth performance for everyone, free wallets may be cleaned up periodically. Consider upgrading to retain all your tracked wallets!`
+Примечание для бесплатного плана:
+Чтобы обеспечить стабильную работу для всех, бесплатные кошельки могут периодически очищаться. Рекомендуем обновить план, чтобы сохранить все отслеживаемые кошельки!`
 
     return messageText
   }
 
   static startMessageGroup = `
-🐱 Bot | Wallet Tracker
+🐱 Bot | Отслеживание кошельков
 
-Get real time activity notifications for any wallet you add!
+Получайте уведомления в реальном времени по любому добавленному кошельку!
 
-You must have a BOT <b>PRO</b> or <b>WHALE</b> subscription to use this bot in a group
+Чтобы использовать этого бота в группе, нужна подписка <b>PRO</b> или <b>WHALE</b>
 
-<b>These are the commands available:</b>
-- /add Add a new wallet
-- /delete Delete a wallet
-- /manage View all wallets
+<b>Доступные команды:</b>
+- /add Добавить новый кошелек
+- /delete Удалить кошелек
+- /manage Просмотреть все кошельки
 `
 
   static planUpgradedMessage(plan: SubscriptionPlan, subscriptionEnd: string): string {
@@ -67,24 +67,24 @@ You must have a BOT <b>PRO</b> or <b>WHALE</b> subscription to use this bot in a
     const planWallet = planWallets[plan]
 
     const messageText = `
-😸 Success! Your plan has been upgraded to <b>${plan}</b>.
-Your subscription will renew at ${subscriptionEnd}
+😸 Успех! Ваш план обновлён до <b>${plan}</b>.
+Подписка продлится до ${subscriptionEnd}
 
-You can now track up to <b>${planWallet}</b> wallets at the time!
+Теперь вы можете отслеживать до <b>${planWallet}</b> кошельков одновременно!
 `
 
     return messageText
   }
 
   static insufficientBalanceMessage: string = `
-😿 Ooops it seems that you don't have sufficient balance to perform this transaction.
+😿 Упс, похоже, недостаточно средств для выполнения этой транзакции.
 
-You can try by adding some <b>SOL</b> to your Bot personal wallet 😺
+Попробуйте пополнить <b>SOL</b> на личный кошелек бота 😺
 `
 
   static userAlreadyPaidMessage(action: 'CODE' | 'PLAN'): string {
     const messageText = `
-🤝 You already purchased this ${action.toLowerCase()} 
+🤝 Вы уже приобрели этот ${action.toLowerCase()}
 `
 
     return messageText
@@ -92,80 +92,80 @@ You can try by adding some <b>SOL</b> to your Bot personal wallet 😺
 
   static walletLimitMessageError(walletName: string | undefined, walletAddress: string, planWallets: number): string {
     const messageText = `
-😾 Could not add wallet: <code>${walletName ? walletName : walletAddress}</code>, 
+😾 Не удалось добавить кошелек: <code>${walletName ? walletName : walletAddress}</code>,
 
-Wallet limit reached: <b>${planWallets}</b>
+Достигнут лимит кошельков: <b>${planWallets}</b>
 
-You can try by upgrading your <b>plan</b> for more wallets 💎
+Вы можете обновить <b>план</b>, чтобы добавить больше кошельков 💎
 `
 
     return messageText
   }
 
   static generalMessageError: string = `
-😿 Ooops it seems that something went wrong while processing the transaction.
+😿 Упс! Похоже, произошла ошибка при обработке транзакции.
 
-You probaly don't have sufficient balance in your wallet or it can't cover the transaction fees.
+Возможно, на кошельке недостаточно средств или не хватает на комиссию.
 
-Maybe try adding some <b>SOL</b> to your Bot personal wallet 😺
+Попробуйте пополнить <b>SOL</b> на личный кошелек бота 😺
 `
 
   static botWalletError: string = `
-😿 Oops! it seems that this wallet is spamming to many tps, Please enter another wallet or try again later.
+😿 Упс! Похоже, этот кошелек отправляет слишком много транзакций. Введите другой кошелек или попробуйте позже.
 `
 
   static groupsMessage(userGroups: UserGroup[]) {
     const groupsContent =
       userGroups.length === 0
-        ? `     
-<i>You do not have any groups yet.</i>
+        ? `
+<i>У вас пока нет групп.</i>
 `
         : userGroups
             .map(
               (group, i) => `
-✅ Group Name: <b>${group.name}</b>
-🔗 Group ID: <code>${group.id}</code>
+✅ Название группы: <b>${group.name}</b>
+🔗 ID группы: <code>${group.id}</code>
 
 `,
             )
             .join('\n\n')
 
     const messageText = `
-You can now use <b>Bot</b> in any group chat!
+Теперь вы можете использовать <b>Bot</b> в любых групповых чатах!
 
-Your groups: (${userGroups.length} / ${MAX_USER_GROUPS})
+Ваши группы: (${userGroups.length} / ${MAX_USER_GROUPS})
 ${groupsContent}
-Learn how to add <b>Bot</b> to a group chat in the <b>Help</b> menu
+Узнайте, как добавить <b>Bot</b> в групповой чат в разделе <b>Помощь</b>
 `
     return messageText
   }
 
   static groupChatNotStarted = `
-🚫 You cannot change Bot settings in this group
+🚫 Нельзя менять настройки бота в этой группе
 
-Bot is not initiated. Send /start
+Бот не инициализирован. Отправьте /start
 `
 
   static groupChatNotActivated = `
-🚫 You cannot change Bot settings in this group
+🚫 Нельзя менять настройки бота в этой группе
 
-Bot is not activated. Send /activate
+Бот не активирован. Отправьте /activate
 `
 
   static userNotAuthorizedInGroup = `
-🚫 You cannot change Bot settings in this group
+🚫 Нельзя менять настройки бота в этой группе
 
-you are not authorized to perform this action.
+у вас нет прав для выполнения этого действия.
 `
 
   static deleteGroupMessage = `
-To <b>remove</b> a group from your list, simply send me the <u>Group ID</u> of the group you'd like to delete.
+Чтобы <b>удалить</b> группу из вашего списка, просто отправьте <u>ID группы</u>, которую хотите удалить.
 `
 
   static groupDeletedMessage = `
-This group has been deleted from your list!
+Эта группа удалена из вашего списка!
 `
   static failedToDeleteGroupMessage = `
-Failed to delete group, make sure you provided a valid <b>Group ID</b>
+Не удалось удалить группу, убедитесь, что вы указали корректный <b>ID группы</b>
 `
 }
