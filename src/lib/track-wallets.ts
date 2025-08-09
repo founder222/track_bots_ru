@@ -5,6 +5,7 @@ import { PrismaWalletRepository } from '../repositories/prisma/wallet'
 import { SetupWalletWatcherProps } from '../types/general-interfaces'
 import { WalletWithUsers } from '../types/swap-types'
 import { WatchTransaction } from './watch-transactions'
+import TelegramBot from 'node-telegram-bot-api'
 
 export const walletsArray: WalletWithUsers[] = []
 
@@ -14,9 +15,9 @@ export class TrackWallets {
 
   public walletsState: []
 
-  constructor() {
+  constructor(bot: TelegramBot) {
     this.prismaWalletRepository = new PrismaWalletRepository()
-    this.walletWatcher = new WatchTransaction()
+    this.walletWatcher = new WatchTransaction(bot)
 
     this.walletsState = []
   }
