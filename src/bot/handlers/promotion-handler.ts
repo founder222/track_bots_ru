@@ -30,7 +30,7 @@ export class PromotionHandler {
         parse_mode: 'HTML',
       })
     } else if (paymentMessage === PaymentsMessageEnum.USER_ALREADY_PAID) {
-      this.bot.editMessageText('It seems that you already purchased this promotion', {
+      this.bot.editMessageText('Похоже, вы уже приобрели эту акцию', {
         chat_id: chatId,
         message_id: message.message_id,
         reply_markup: INSUFFICIENT_BALANCE_SUB_MENU,
@@ -39,11 +39,11 @@ export class PromotionHandler {
     } else if (paymentMessage === PaymentsMessageEnum.TRANSACTION_SUCCESS) {
       this.bot.editMessageText(
         `
-😸 Promotion purchased!
+😸 Акция успешно куплена!
 
-Thank you for your purchase
+Спасибо за покупку.
 
-You now will be able to track up to 50 wallets at the same time forever! ✨
+Теперь вы сможете отслеживать до 50 кошельков одновременно навсегда! ✨
 `,
         {
           chat_id: chatId,
