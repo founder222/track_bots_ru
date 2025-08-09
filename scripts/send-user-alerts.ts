@@ -1,11 +1,17 @@
 import { PrismaClient } from '@prisma/client'
 import { MAX_WHALE_WALLETS } from '../src/constants/pricing'
+import { bot } from '../src/providers/telegram'
 import chalk from 'chalk'
 
 const prisma = new PrismaClient()
 
 // Function to send messages to users
 const sendMessage = async () => {
+  if (!bot) {
+    console.error(chalk.red('Bot is not initialized. Please check BOT_TOKENS environment variable.'))
+    return
+  }
+
   console.info(chalk.yellow('Fetching eligible users...'))
   try {
     const allUsers = await prisma.user.findMany({
