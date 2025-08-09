@@ -30,10 +30,7 @@ export class BotMiddleware {
       // Get the list of administrators for the group chat
       const admins = await this.bot.getChatAdministrators(chatId)
 
-      const isAdmin = admins.some(
-        (admin: TelegramBot.ChatMemberAdministrator | TelegramBot.ChatMemberOwner | TelegramBot.ChatMember) =>
-          (admin as any).user.id.toString() === userId
-      )
+      const isAdmin = admins.some((admin: TelegramBot.ChatMember) => (admin as any).user.id.toString() === userId)
 
       return isAdmin
     } catch (error) {
@@ -74,10 +71,7 @@ export class BotMiddleware {
     return { isValid: true, reason: 'VALID' }
   }
 
-  static async checkGroupChatRequirements(
-    chatId: number,
-    userId: string,
-  ): Promise<{ isValid: boolean; message: string }> {
+  static async checkGroupChatRequirements(chatId: number, userId: string): Promise<{ isValid: boolean; message: string }> {
     if (!BotMiddleware.isGroup(chatId)) {
       return { isValid: true, message: '' }
     }
