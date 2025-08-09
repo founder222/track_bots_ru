@@ -228,7 +228,7 @@ app.get('/test-webhook/:botId', (req, res) => {
         id: 12345,
         first_name: "Test",
         username: "testuser",
-        type: "private"
+        type: "private" as const
       },
       date: Math.floor(Date.now() / 1000),
       text: "/start"
@@ -236,10 +236,11 @@ app.get('/test-webhook/:botId', (req, res) => {
   }
 
   try {
-    item.bot.processUpdate(testUpdate)
+    item.bot.processUpdate(testUpdate as any)
     res.json({ success: true, message: 'Test update processed', botId })
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message, botId })
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+    res.status(500).json({ success: false, error: errorMessage, botId })
   }
 })
 
