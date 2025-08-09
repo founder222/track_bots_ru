@@ -22,19 +22,19 @@ export class UpdateBotStatusHandler {
 ${
   changedStatus === 'PAUSED'
     ? `
-✨ Bot has been <u>Paused</u> and you will no longer receive notifications until you resume it!
-    
-You can still resume the bot anytime in the settings menu
+✨ Bot поставлен на <u>паузу</u>, уведомления приходить не будут, пока вы не возобновите его!
+
+Вы всегда можете включить бота в меню настроек
 `
     : changedStatus === 'ACTIVE'
       ? `
-✨ Bot has been <u>Resumed</u> and you will start receiving notifications again!
-    
-Feel free to adjust your preferences anytime in the settings menu
+✨ Bot <u>возобновлён</u>, вы снова начнёте получать уведомления!
+
+Вы можете менять настройки в любое время в меню настроек
 `
       : changedStatus === 'NONE'
         ? `
-Something went wrong while updating the status, please try again later
+Произошла ошибка при обновлении статуса, попробуйте позже
 `
         : ''
 }
