@@ -3,29 +3,29 @@ export class DonateMessages {
 
   static donateMessage(userWallet?: string | undefined): string {
     const messageText = `
-⭐ <b>Support the future of Bot</b>
+⭐ <b>Поддержите развитие Bot</b>
 
-Every donation helps keep the bot running and contributes to new features 🐱✨
+Каждое пожертвование помогает поддерживать работу бота и добавлять новые функции 🐱✨
 
-No donation is too small, and every bit of support is appreciated!
+Даже небольшой вклад важен — спасибо за любую поддержку!
 
-To donate:
-1️⃣ Send any amount of <b>SOL</b> to your <b>Bot wallet</b>.
-2️⃣ Select one of the <b>options</b> below or simply <b>type</b> the amount you'd like to donate (e.g., for 0.01 SOL, just type "0.01").
+Как пожертвовать:
+1️⃣ Отправьте любую сумму в <b>SOL</b> на ваш <b>кошелек Bot</b>.
+2️⃣ Выберите один из <b>вариантов</b> ниже или просто <b>введите</b> сумму, которую хотите пожертвовать (например, для 0.01 SOL напишите "0.01").
 
-<b>Your Bot wallet:</b> <code>${userWallet ? userWallet : ''}</code>
+<b>Ваш кошелек Bot:</b> <code>${userWallet ? userWallet : ''}</code>
 `
 
     return messageText
   }
 
   static donationMadeMessage: string = `
-😸 <b>Success!</b> Thank you for your generous donation! 🎉
+😸 <b>Готово!</b> Спасибо за вашу щедрую поддержку! 🎉
 
-Your support helps keep Bot growing and improving, allowing us to bring you exciting new features and better services.
+Ваш вклад помогает Bot расти и развиваться, чтобы мы могли радовать вас новыми возможностями и лучшими сервисами.
 
-Every donation makes a difference, and we are incredibly grateful for your contribution. 💖
+Каждое пожертвование важно, и мы очень признательны за ваш вклад. 💖
 
-🚀 Stay tuned for more updates and features, and thank you for being a part of our journey! 🐾
+🚀 Следите за обновлениями и новыми функциями — спасибо, что вы с нами! 🐾
 `
 }
