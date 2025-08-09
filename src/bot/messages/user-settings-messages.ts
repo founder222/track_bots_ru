@@ -2,10 +2,10 @@ export class UserSettingsMessages {
   constructor() {}
 
   static settingsMessage: string = `
-<b>⚙️ Settings</b>
+<b>⚙️ Настройки</b>
 
-You can pause or resume Bot at anytime just by clicking the button below ✨
+Вы можете поставить Bot на паузу или возобновить его работу в любое время — просто нажмите кнопку ниже ✨
 
-If you pause Bot, you will no longer get more messages until you resume the bot from this same menu
+Если вы поставите Bot на паузу, уведомления приходить не будут, пока вы не включите его снова в этом же меню
 `
 }
