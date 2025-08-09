@@ -5,11 +5,11 @@ import { UserWallet } from '../../types/prisma-types'
 export class ManageMessages {
   static manageMessage(userWallets: UserWallet[], walletsAmt: number) {
     const messageText = `
-<b>Your wallets: ${userWallets.length} / ${walletsAmt}</b>
+<b>Ваши кошельки: ${userWallets.length} / ${walletsAmt}</b>
 
-✅ - Wallet is active
-⏳ - Wallet was sending too many txs and is paused
-🛑 - Wallet was banned
+✅ - Кошелек активен
+⏳ - Кошелек отправлял слишком много транзакций и приостановлен
+🛑 - Кошелек заблокирован
 
 ${userWallets
   .map((wallet, i) => {
